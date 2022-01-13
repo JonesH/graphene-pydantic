@@ -126,7 +126,7 @@ def convert_pydantic_field(
     """
     declared_type = getattr(field, "type_", None)
     field_kwargs.setdefault(
-        "type",
+        "type_",
         convert_pydantic_type(
             declared_type, field, registry, parent_type=parent_type, model=model
         ),
@@ -337,6 +337,7 @@ def convert_union_type(
     )
     return union_cls
 
+
 def convert_literal_type(
     type_: T.Type,
     field: ModelField,
@@ -350,11 +351,7 @@ def convert_literal_type(
     inner_types = type_.__args__
     # Here we'll expand the subtypes of this Literal into a corresponding more
     # general scalar type.
-    scalar_types = {
-        type(x)
-        for x in inner_types
-        if x != NONE_TYPE
-    }
+    scalar_types = {type(x) for x in inner_types if x != NONE_TYPE}
     graphene_scalar_types = [
         convert_pydantic_type(x, field, registry, parent_type=parent_type, model=model)
         for x in scalar_types
